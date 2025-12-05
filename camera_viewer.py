@@ -2,12 +2,11 @@
 """
 Basic Raspberry Pi Camera Module 3 video viewer.
 Displays live video feed from the camera on screen.
-Press 'q' to quit.
+Press Ctrl+C to quit.
 """
 
-import sys
 from picamera2 import Picamera2
-import cv2
+import time
 
 def main():
     # Initialize the camera
@@ -23,29 +22,24 @@ def main():
     # Start the camera
     picam2.start()
     
-    print("Camera started. Press 'q' to quit.")
+    # Start preview - this displays directly on the Pi's screen
+    # Uses QtGL preview which works without X11
+    picam2.start_preview()
+    
+    print("Camera started. Preview displayed on screen.")
+    print("Press Ctrl+C to quit.")
     
     try:
+        # Keep the script running
         while True:
-            # Capture frame from camera
-            frame = picam2.capture_array()
-            
-            # Convert RGB to BGR for OpenCV display (OpenCV uses BGR)
-            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            
-            # Display the frame
-            cv2.imshow("Raspberry Pi Camera", frame_bgr)
-            
-            # Check for 'q' key press to quit
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            time.sleep(1)
                 
     except KeyboardInterrupt:
         print("\nInterrupted by user")
     finally:
         # Clean up
+        picam2.stop_preview()
         picam2.stop()
-        cv2.destroyAllWindows()
         print("Camera stopped.")
 
 if __name__ == "__main__":
