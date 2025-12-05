@@ -16,8 +16,7 @@ def main():
     # Configure camera for preview
     # This creates a low-resolution preview stream
     preview_config = picam2.create_preview_configuration(
-        main={"size": (1280, 720)},  # Resolution: 1280x720
-        format="RGB888"
+        main={"size": (1280, 720)}  # Resolution: 1280x720
     )
     picam2.configure(preview_config)
     
