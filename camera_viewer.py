@@ -6,6 +6,7 @@ Press Ctrl+C to quit.
 """
 
 from picamera2 import Picamera2
+from picamera2.previews.qt import QtGlPreview
 import time
 
 def main():
@@ -22,9 +23,10 @@ def main():
     # Start the camera
     picam2.start()
     
-    # Start preview - this displays directly on the Pi's screen
-    # Uses QtGL preview which works without X11
-    picam2.start_preview()
+    # Start preview using QtGlPreview - works on Pi's display
+    # This creates a preview window that displays on the screen
+    preview = QtGlPreview(picam2)
+    preview.start()
     
     print("Camera started. Preview displayed on screen.")
     print("Press Ctrl+C to quit.")
@@ -38,7 +40,7 @@ def main():
         print("\nInterrupted by user")
     finally:
         # Clean up
-        picam2.stop_preview()
+        preview.stop()
         picam2.stop()
         print("Camera stopped.")
 
