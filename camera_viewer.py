@@ -62,7 +62,6 @@ def main():
     
     # Initialize YOLOv8-Pose model
     # Using 'yolov8n-pose.pt' (nano) for better performance on Raspberry Pi
-    # Options: yolov8n-pose.pt (nano, fastest), yolov8s-pose.pt (small), yolov8m-pose.pt (medium)
     print("Loading YOLOv8-Pose model...")
     model = YOLO('yolov8n-pose.pt')  # Will download on first run
     print("Model loaded!")
@@ -70,9 +69,10 @@ def main():
     # Initialize the camera
     picam2 = Picamera2()
     
-    # Configure camera for preview
+    # Configure camera for preview - reduced resolution for better performance
+    # Lower resolution = faster processing
     preview_config = picam2.create_preview_configuration(
-        main={"size": (1280, 720)}  # Resolution: 1280x720
+        main={"size": (640, 480)}  # Reduced from 1280x720 for better performance
     )
     picam2.configure(preview_config)
     
@@ -81,6 +81,13 @@ def main():
     
     print("Camera started. Tracking human skeletons...")
     print("Press 'q' to quit.")
+    print("Performance optimizations: Lower resolution, frame skipping, smaller model input")
+    
+    # Performance optimization: Process every Nth frame
+    # Higher number = better FPS but less frequent pose updates
+    FRAME_SKIP = 2  # Process every 2nd frame (adjust: 1=every frame, 2=every 2nd, 3=every 3rd)
+    frame_count = 0
+    last_results = None
     
     try:
         while True:
@@ -90,19 +97,29 @@ def main():
             # Convert RGB to BGR for OpenCV display
             frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             
-            # Run pose estimation
-            results = model(frame_bgr, verbose=False)
+            # Only run inference every Nth frame for better performance
+            if frame_count % FRAME_SKIP == 0:
+                # Run pose estimation with optimized settings
+                # imgsz=320: smaller input size = faster inference
+                # half=True: use FP16 if available (faster on some hardware)
+                # device='cpu': explicitly use CPU (or 'cuda' if GPU available)
+                results = model(frame_bgr, 
+                              imgsz=320,  # Smaller input size for faster processing
+                              verbose=False,
+                              device='cpu')
+                last_results = results[0]
             
-            # Draw results on frame
-            annotated_frame = results[0].plot()  # This draws bounding boxes and keypoints
-            
-            # Alternative: Custom drawing (uncomment to use custom skeleton drawing)
-            # if results[0].keypoints is not None and len(results[0].keypoints.data) > 0:
-            #     keypoints = results[0].keypoints.data.cpu().numpy()
-            #     draw_skeleton(frame_bgr, keypoints)
+            # Use last results for display (smooth video even when skipping frames)
+            if last_results is not None:
+                # Draw results on frame
+                annotated_frame = last_results.plot()  # This draws bounding boxes and keypoints
+            else:
+                annotated_frame = frame_bgr
             
             # Display the frame
             cv2.imshow("Raspberry Pi Camera - Skeleton Tracking", annotated_frame)
+            
+            frame_count += 1
             
             # Check for 'q' key press to quit
             if cv2.waitKey(1) & 0xFF == ord('q'):
