@@ -4,14 +4,26 @@ Python script to capture video from Raspberry Pi Camera Module 3 and track human
 
 ## Installation
 
-On your Raspberry Pi, install the required dependencies:
+On your Raspberry Pi, install system dependencies and set up the virtual environment:
 
 ```bash
+# Install system dependencies
 sudo apt update
-sudo apt install -y python3-picamera2 python3-opencv python3-pip
+sudo apt install -y python3-picamera2 python3-opencv python3-pip python3-venv
 
-# Install YOLOv8 (Ultralytics)
-pip3 install ultralytics
+# Clone the repository (if not already done)
+# git clone https://github.com/parroz/glucam.git
+# cd glucam
+
+# Set up virtual environment (run the setup script)
+chmod +x setup_venv.sh
+./setup_venv.sh
+
+# Or manually:
+# python3 -m venv venv
+# source venv/bin/activate
+# pip install --upgrade pip
+# pip install -r requirements.txt
 ```
 
 **Note:** The YOLOv8 model will be automatically downloaded on first run (yolov8n-pose.pt, ~6MB).
@@ -20,9 +32,17 @@ pip3 install ultralytics
 
 1. Make sure the camera is connected and enabled (usually enabled by default on Raspberry Pi 5)
 
-2. Run the script directly on the Raspberry Pi (with display connected):
+2. Activate the virtual environment and run the script:
    ```bash
-   python3 camera_viewer.py
+   source venv/bin/activate
+   python camera_viewer.py
+   ```
+
+3. The preview window will appear showing the video feed with detected human skeletons. Press `q` to quit.
+
+4. When done, deactivate the virtual environment:
+   ```bash
+   deactivate
    ```
 
 3. The preview window will appear showing the video feed with detected human skeletons. Press `q` to quit.
