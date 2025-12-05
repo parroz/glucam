@@ -8,7 +8,7 @@ On your Raspberry Pi, install the required dependencies:
 
 ```bash
 sudo apt update
-sudo apt install -y python3-picamera2
+sudo apt install -y python3-picamera2 python3-opencv
 ```
 
 ## Usage
@@ -20,12 +20,13 @@ sudo apt install -y python3-picamera2
    python3 camera_viewer.py
    ```
 
-3. The preview will appear on the connected screen. Press `Ctrl+C` to quit.
+3. The preview window will appear on the connected screen. Press `q` to quit.
 
 ## Notes
 
 - The script displays video at 1280x720 resolution
-- Uses picamera2's built-in preview which works directly on the Pi's display (no X11 needed)
-- Must be run on the Raspberry Pi itself with a display connected, or via SSH with X11 forwarding
-- The preview window will appear on the Pi's desktop/screen
+- Uses OpenCV for display, which works on the Pi's desktop
+- Must be run on the Raspberry Pi itself with a display connected
+- The script automatically sets the DISPLAY environment variable if needed
+- If running via SSH, you'll need X11 forwarding: `ssh -X user@raspberry-pi-ip`
 
