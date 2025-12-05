@@ -4,8 +4,15 @@
 
 echo "Setting up virtual environment..."
 
-# Create virtual environment
-python3 -m venv venv
+# Remove existing venv if it exists
+if [ -d "venv" ]; then
+    echo "Removing existing virtual environment..."
+    rm -rf venv
+fi
+
+# Create virtual environment with system site packages
+# This allows access to system-installed packages like picamera2
+python3 -m venv --system-site-packages venv
 
 # Activate virtual environment
 source venv/bin/activate
